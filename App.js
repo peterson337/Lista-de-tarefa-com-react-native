@@ -16,16 +16,17 @@ export default function App() {
 
   useEffect(() => {
     const loadTasks = async () => {
-      if (condition) {
-        
-      }
-      try {
-        const recuperacaoTasks = await AsyncStorage.getItem('tasks');
-        const parsedTasks = JSON.parse(recuperacaoTasks); // Converter a string de volta para um array
-        setTask(parsedTasks); // Atribuir o array convertido a 'task'
-      } catch (error) {
-        console.warn(error);
-      }
+
+        try {
+          const recuperacaoTasks = await AsyncStorage.getItem('tasks');
+          const parsedTasks = JSON.parse(recuperacaoTasks); // Converter a string de volta para um array
+          setTask(parsedTasks); // Atribuir o array convertido a 'task'
+        } catch (error) {
+          console.warn(error);
+        }
+
+      
+      
     }
   
     loadTasks();
@@ -33,7 +34,6 @@ export default function App() {
   
 
 
-  //console.warn(task);
   const image = require('./resources/bg.jpg');
 
   let [fontsLoaded] = useFonts({
@@ -44,15 +44,22 @@ export default function App() {
     return <AppLoading />;
   }
 
-  const deletarTarefa = (id) => {
-    let excluirTarefa = task.filter(function (task) {
-      return task.id != id;
-    })
-    alert('Tarefa excluida com sucesso')
+  const deletarTarefa = async (id) => {
+    const novaListaTarefas = task.filter((tarefa) => tarefa.id !== id);
+    setTask(novaListaTarefas);
+    alert('Tarefa excluída com sucesso');
+  
+    try {
+      await AsyncStorage.setItem('tasks', JSON.stringify(novaListaTarefas));
+    } catch (erro) {
+      console.log(erro);
+    }
+  };
+  
 
-    setTask(excluirTarefa);
-  }
-
+  
+  
+  
   const addTask = async () => {
     setModal(!modal);
     alert('Tarefa adicionada com sucesso' + tarefaAtual);
@@ -73,12 +80,10 @@ export default function App() {
     try {
       await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
     } catch (erro) {
-      console.log(erro)
+      console.log(erro);
     }
   }
   
-  
-
 
   return (
     <ScrollView style={{ flex: 1 }}>
@@ -121,34 +126,35 @@ export default function App() {
 
       </ImageBackground>
 
-      {
+    {
 
-        task.length == 0 ?
+    task.length === 0 ?
+    <View>
+      <Text style={styles.p}>
+        Nenhuma tarefa foi encontrada
+      </Text>
+    </View>
+    :
+    task?.map(function (val) {
+      return (
+        <View style={styles.tarefaSingle} key={val.id}>
           <View>
-            <Text style={styles.p}>
-              Nenhuma tarefa foi encontrada
+            <Text style={{ flex: 1, width: '100%', padding: 10 }}>
+              {val.task}
             </Text>
           </View>
-          :
-          task?.map(function (val, index) {
-            return (
-              <View style={styles.tarefaSingle} key={val.id}>
-                <View>
-                  <Text style={{ flex: 1, width: '100%', padding: 10 }}>
-                    {val.task}
-                  </Text>
-                </View>
 
-                <View style={{ padding: 10, flex: 1, alignItems: 'flex-end' }}>
-                  <TouchableOpacity onPress={() => deletarTarefa(val.id)}>
-                    <FontAwesome5 name="trash" size={24} color="red"
-                      style={styles.Teste} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )
-          })
-      }
+          <View style={{ padding: 10, flex: 1, alignItems: 'flex-end' }}>
+            <TouchableOpacity onPress={() => deletarTarefa(val.id)}>
+              <FontAwesome5 name="trash" size={24} color="red"
+                style={styles.Teste} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )
+    })
+}
+
 
       <View style={{ justifyContent: 'center', alignItems: 'center', }}>
         <TouchableOpacity onPress={() => setModal(true)}
