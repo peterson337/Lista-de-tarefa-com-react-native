@@ -7,9 +7,10 @@ TouchableWithoutFeedback } from 'react-native';
 
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useFonts, Bangers_400Regular } from '@expo-google-fonts/bangers';
-import AppLoading from 'expo-app-loading';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AntDesign } from '@expo/vector-icons'; 
+import * as SplashScreen from 'expo-splash-screen';
+
 
 
 
@@ -21,6 +22,8 @@ export default function App() {
 
   const [modal, setModal] = useState(false);
   const [tarefaAtual, setTarefaAtual] = useState('');
+  const [activated, setActivated] = useState(false);
+
 
 
   useEffect(() => {
@@ -34,7 +37,7 @@ export default function App() {
           console.warn(error);
         }
 
-      
+        
       
     }
   
@@ -50,7 +53,8 @@ export default function App() {
   });
 
   if (!fontsLoaded) {
-    return <AppLoading />;
+    return null
+    
   }
 
   const deletarTarefa = async (id) => {
@@ -172,8 +176,9 @@ export default function App() {
         Nenhuma tarefa foi encontrada. 😔 
       </Text>
 
-      <Text style={{textAlign: 'center', fontSize: 30, margin: 10}}>
-      Para adicionra uma tarefa clique no botão abaixo 👇
+      <Text style={{textAlign: 'center', fontSize: 30, margin: 20, 
+      }}>
+      Para adicionar uma tarefa clique no botão abaixo 👇
       
       </Text>
 
@@ -183,16 +188,55 @@ export default function App() {
       return (
         <View style={styles.tarefaSingle} key={val.id}>
           <View>
-            <Text style={{ flex: 1, width: '100%', padding: 10 }}>
-              {val.task}
-            </Text>
+            
+            {   activated === true?
+                 <Text style={{ flex: 1, width: '100%', padding: 10, 
+                 color: 'gray', textDecorationLine: 'line-through' }}>
+                   {val.task}
+     
+                   
+                 </Text>
+     
+              :
+
+              <Text style={{ flex: 1, width: '100%', padding: 10 
+            }}>
+               {val.task}
+ 
+               
+             </Text>
+ 
+              }
           </View>
 
-          <View style={{ padding: 10, flex: 1, alignItems: 'flex-end' }}>
+          <View style={{padding: 10, flex: 1, alignItems: 'flex-end', }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-start', 
+          alignItems: 'center' }}>
+
             <TouchableOpacity onPress={() => deletarTarefa(val.id)}>
               <FontAwesome5 name="trash" size={24} color="red"
                 style={styles.Teste} />
-            </TouchableOpacity>
+            </TouchableOpacity> 
+
+
+
+              {activated === false?
+                  <TouchableOpacity>
+                  <AntDesign name="check" size={24} color="green"
+                  onPress={() => setActivated(true)}
+                  style={{marginHorizontal: 10}} />
+                  </TouchableOpacity>
+
+                  :
+                  <TouchableOpacity>
+                  <AntDesign name="check" size={24} color="green"
+                  onPress={() => setActivated(false)} 
+                  style={{marginHorizontal: 10}} />
+                  </TouchableOpacity>
+              }
+         
+
+          </View>
           </View>
         </View>
       )
@@ -203,7 +247,8 @@ export default function App() {
       <View style={{ justifyContent: 'center', alignItems: 'center', }}>
         <TouchableOpacity onPress={() => setModal(true)}
           style={styles.btnAddTarefas}>
-          <Text style={{ textAlign: 'center', color: 'white', }}>Adicionar tarefa
+          <Text style={{ textAlign: 'center', color: 'white', }}>
+            Adicionar tarefa
           </Text>
         </TouchableOpacity>
       </View>
@@ -238,10 +283,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
     borderBottomWidth: 2,
     borderBottomColor: 'white',
-    borderBottomStyle: 'solid',
     marginHorizontal: 90,
     fontFamily: 'Bangers_400Regular',
   },
+  
 
   tarefaSingle: {
     marginTop: 30,
@@ -270,12 +315,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 30,
     color: 'red',
+    fontFamily: 'Bangers_400Regular',
 
   },
 
   //? Estilo da modal
 
-  //Estilos para nossa modal
   centeredView: {
     flex: 1,
     justifyContent: "center",
@@ -323,13 +368,6 @@ const styles = StyleSheet.create({
       borderRadius: 20,
       color: "white",
   },
-
-  divClose: {
-  
-
-  },
-
-
 
   /* 
   image: {
