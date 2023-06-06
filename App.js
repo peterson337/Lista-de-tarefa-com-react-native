@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, ImageBackground, TouchableOpacity, ScrollView, Modal, TouchableHighlight, TextInput } from 'react-native';
+
+import { StyleSheet, Text, View, ImageBackground, TouchableOpacity, ScrollView, 
+Modal, TouchableHighlight, TextInput, Alert,
+TouchableWithoutFeedback } from 'react-native';
+
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useFonts, Bangers_400Regular } from '@expo-google-fonts/bangers';
 import AppLoading from 'expo-app-loading';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AntDesign } from '@expo/vector-icons'; 
+
+
+
 
 export default function App() {
   //! console.disableYellowBox = true;
@@ -13,6 +21,7 @@ export default function App() {
 
   const [modal, setModal] = useState(false);
   const [tarefaAtual, setTarefaAtual] = useState('');
+
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -61,8 +70,15 @@ export default function App() {
   
   
   const addTask = async () => {
+    setTarefaAtual('');
+
+    if (!tarefaAtual.trim()) {
+      alert("Escreva alguma coisa para adicionar uma tarefa");
+      return
+    }
+
     setModal(!modal);
-    alert('Tarefa adicionada com sucesso' + tarefaAtual);
+    alert('Tarefa adicionada com sucesso ' + tarefaAtual);
     let id = 0;
     if (task.length > 0) {
       id = task[task.length - 1].id + 1;
@@ -86,15 +102,18 @@ export default function App() {
   
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <StatusBar hidden />
-      <ImageBackground source={image} style={styles.image}>
+    <ScrollView style={styles.container}>
+
+       <StatusBar hidden={true} />      
+<ImageBackground source={image} style={styles.image}>
 
         <View style={styles.coverView}>
           <Text style={styles.textHeader}>
             Lista de tarefas
           </Text>
         </View>
+
+    
 
         <Modal
           /* animationType serve para como a modal aprecerá */
@@ -104,13 +123,27 @@ export default function App() {
           /* visible serve para a modal aparecer */
           visible={modal}
           onRequestClose={() => {
-            Alert.alert("Modal has been closed.");
+            setModal(false);
           }}
-        >
-          <View style={styles.centeredView}>
+          statusBarTranslucent={true} 
+          >
+                  
+
+        <TouchableWithoutFeedback onPress={() => setModal(false)}>
+
+          <View style={styles.centeredView}
+           > 
             <View style={styles.modalView}>
+
+            <View style={styles.divClose}>
+            <AntDesign name="close" size={24} color="black" 
+              onPress={() => setModal(false)}
+              style={styles.close}/>
+              </View>
+
               <TextInput autoFocus={true}
-                onChangeText={text => setTarefaAtual(text)}></TextInput>
+                onChangeText={text => setTarefaAtual(text)} 
+                ></TextInput>
 
               <TouchableHighlight
                 style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
@@ -122,7 +155,12 @@ export default function App() {
               </TouchableHighlight>
             </View>
           </View>
+          </TouchableWithoutFeedback>
+          <StatusBar hidden />
+
         </Modal>
+
+
 
       </ImageBackground>
 
@@ -131,8 +169,14 @@ export default function App() {
     task.length === 0 ?
     <View>
       <Text style={styles.p}>
-        Nenhuma tarefa foi encontrada
+        Nenhuma tarefa foi encontrada. 😔 
       </Text>
+
+      <Text style={{textAlign: 'center', fontSize: 30, margin: 10}}>
+      Para adicionra uma tarefa clique no botão abaixo 👇
+      
+      </Text>
+
     </View>
     :
     task?.map(function (val) {
@@ -169,6 +213,11 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+
+  container: {
+    flex: 1,
+  },
+
   image: {
     width: '100%',
     height: 80,
@@ -216,7 +265,11 @@ const styles = StyleSheet.create({
   },
 
   p: {
+    paddingTop: 20,
     padding: 10,
+    textAlign: 'center',
+    fontSize: 30,
+    color: 'red',
 
   },
 
@@ -259,7 +312,24 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: "center"
-  }
+  },
+
+  close: {
+      position: "relative",
+      bottom: 27,
+      left: 75,
+      backgroundColor: 'red',
+      padding: 5,
+      borderRadius: 20,
+      color: "white",
+  },
+
+  divClose: {
+  
+
+  },
+
+
 
   /* 
   image: {
